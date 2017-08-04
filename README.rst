@@ -6,6 +6,7 @@ and parsing one file, CfgStack can be directed to go read other files
 and to incorporate their contents into the growing dataset.
 
 ::
+
   CfgStack ("somefile")
   
 Attempts to load the named file, first as a JSON file with a ".json"
@@ -15,6 +16,7 @@ member of the resulting object is an addict Dict of the loaded
 dataset.  So far so simple.
 
 ::
+
   _include_:
     - file1
     - file2
