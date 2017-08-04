@@ -7,7 +7,7 @@ from codecs import open
 setup (
     name = "cfgstack",
     version = versioneer.get_version (),
-    description = "Load stacks of YAML data",
+    description = "Load stacks of JSON or YAML data",
     long_description = open ("README.rst", 'r', encoding = 'utf-8').read (),
     cmdclass = versioneer.get_cmdclass (),
     classifiers = [
