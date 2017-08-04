@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 
-import copy, logging, logtool, pprint, yaml
+import copy, json, logtool, os, pprint, yaml
 from addict import Dict
 
-LOG = logging.getLogger (__name__)
 DEFAULT_KEY = "_default_"
 INCLUDE_KEY = "_include_"
 
@@ -14,10 +13,16 @@ class CfgStack (object):
   def __init__ (self, fname):
     # pylint: disable=too-many-nested-blocks,too-many-branches
     self.fname = fname
-    self.read = yaml.safe_load (fname)
+    if os.path.isfile (fname + ".json"):
+      self.read = json.loads (file (fname + ".json").read ())
+    elif os.path.isfile (fname + ".yaml"):
+      self.read = yaml.safe_load (file (fname + ".yaml"))
+    elif os.path.isfile (fname + ".yml"):
+      self.read = yaml.safe_load (file (fname + ".yml"))
+    else:
+      raise ValueError ("CfgStack: Canot find file for: %s" % fname)
     if not isinstance (self.read, dict):
-      LOG.error ("CfgStack: %s -- object is not a dict", fname)
-      raise KeyError
+      raise ValueError ("CfgStack: %s -- object is not a dict" % fname)
     stack = [self.read,]
     for d in stack:
       include = d.get (INCLUDE_KEY, [])
@@ -49,9 +54,9 @@ class CfgStack (object):
 
   @logtool.log_call
   def __repr__ (self):
-    return yaml.dump (self.data.as_dict (), width = 70, indent = 2,
-                      default_style = '"', default_flow_style = False)
+    return yaml.dump (self.data.to_dict (), width = 70, indent = 2,
+                      default_flow_style = False)
 
   @logtool.log_call
   def __str__ (self):
-    return pprint.pformat (self.data.as_dict ())
+    return pprint.pformat (self.data.to_dict ())
