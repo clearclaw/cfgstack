@@ -39,13 +39,13 @@ dataset.  So far so simple.
 
 A few things going on here:
 
-  - "_include_" keys are assumed to list additional data files.  They
-  will be loaded and their contents merged with the dictionary at the
-  same level.  If multiple files are listed, they will be applied in
-  order from the top down.
+  - "_include_" keys are assumed to list additional data files which 
+will be loaded and their contents merged with the dictionary at the
+same level.  If multiple files are listed, they will be applied in
+order from the top down.
 
   - "_default_" keys provide default key:value pairs for all
-  dictionary values at the current level
+dictionary values at the current level
   
 Note that all includes are applied first, then all defaults. Higher
 level values override lower level values, across both includes and
