@@ -17,7 +17,7 @@ setup (
         + "GNU Lesser General Public License v3 or later (LGPLv3+)",
         "Topic :: Utilities",
     ],
-    keywords = "logging, exceptions, callpoints, call tracing",
+    keywords = "configfile, file stacks, reference trees",
     author = "J C Lawrence",
     author_email = "claw@kanga.nu",
     url = "https://github.com/clearclaw/cfgstack",
