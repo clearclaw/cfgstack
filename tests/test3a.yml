@@ -1,0 +1,4 @@
+_default_:
+  foo: bar
+this:
+  other: thing

@@ -1,0 +1,14 @@
+_default_:
+  foo: bar
+  password: sekrit
+this:
+  other: thing
+  password: ohdear
+problem:
+  foo: baz
+empty: {}
+channels:
+  - name: '#mychannel'
+    password: ''
+  - name: '#myprivatechannel'
+    password: 'mypassword'

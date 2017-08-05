@@ -1,0 +1,7 @@
+_default_:
+  overlay: power
+here: there
+this:
+  start: end
+problem:
+  foo: baz
