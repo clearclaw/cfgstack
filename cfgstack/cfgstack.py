@@ -49,7 +49,7 @@ class CfgStack (object):
       if isinstance (v, dict):
         stack.append (v)
 
-  @logtool.log_call
+  @logtool.log_call (log_args = False, log_rc = False)
   def _do_includes (self, no_defaults):
     stack = [self.read,]
     for d in stack:
