@@ -29,10 +29,10 @@ class CfgStack (object):
     elif os.path.isfile (fname + ".yml"):
       return yaml.safe_load (file (fname + ".yml"))
     else:
-      raise ValueError ("CfgStack: Canot find file for %s in %s"
+      raise ValueError ("CfgStack: Cannot find file for %s in %s"
                         % (fname, os.getcwd ()))
 
-  @logtool.log_call
+  @logtool.log_call (log_args = False, log_rc = False)
   def _meld (self, master, slave):
     if master is None:
       return slave
@@ -43,7 +43,7 @@ class CfgStack (object):
       return new
     return master
 
-  @logtool.log_call
+  @logtool.log_call (log_args = False, log_rc = False)
   def _do_nesting (self, d, stack):
     for _, v in d.items ():
       if isinstance (v, dict):
