@@ -29,8 +29,8 @@ class CfgStack (object):
     elif os.path.isfile (fname + ".yml"):
       return yaml.safe_load (file (fname + ".yml"))
     else:
-      raise ValueError ("CfgStack: Cannot find file for %s in %s"
-                        % (fname, os.getcwd ()))
+      raise IOError ("CfgStack: Cannot find file for %s in %s"
+                     % (fname, os.getcwd ()))
 
   @logtool.log_call (log_args = False, log_rc = False)
   def _meld (self, master, slave):
