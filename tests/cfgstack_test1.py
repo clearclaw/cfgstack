@@ -135,5 +135,22 @@ class CfgStack_Tests (unittest.TestCase):
       self.assertEqual (removed, set ([]))
       self.assertEqual (modified, {})
 
+  @logtool.log_call
+  def test_test4 (self):
+    with chdir_ctx ("tests"):
+      c = cfgstack.CfgStack ("test4")
+      d = c.data.to_dict ()
+      expected = {
+        "root": {
+          "bottom": "bottom",
+          "override": "test4b",
+          "top": "top",
+        },
+      }
+      added, removed, modified, same = dict_compare (expected, d)
+      self.assertEqual (added, set ([]))
+      self.assertEqual (removed, set ([]))
+      self.assertEqual (modified, {})
+
 if __name__ == "__main__":
   unittest.main()

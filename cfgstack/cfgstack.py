@@ -12,7 +12,9 @@ class CfgStack (object):
   @logtool.log_call
   def __init__ (self, fname, no_defaults = False):
     # pylint: disable=too-many-nested-blocks,too-many-branches
+    self.fname = fname
     self.read = self._load (fname)
+    self.no_defaults = no_defaults
     self._do_includes (no_defaults)
     self._do_defaults ()
     self.data = Dict (self.read)
@@ -32,7 +34,7 @@ class CfgStack (object):
       raise IOError ("CfgStack: Cannot find file for %s in %s"
                      % (fname, os.getcwd ()))
 
-  @logtool.log_call (log_args = False, log_rc = False)
+#  @logtool.log_call (log_args = False, log_rc = False)
   def _meld (self, master, slave):
     if master is None:
       return slave
@@ -41,27 +43,27 @@ class CfgStack (object):
       # FIXME: should be a deep merge
       new.update (master)
       return new
-    return master
+    return slave
 
-  @logtool.log_call (log_args = False, log_rc = False)
+#  @logtool.log_call (log_args = False, log_rc = False)
   def _do_nesting (self, d, stack):
     for _, v in d.items ():
       if isinstance (v, dict):
         stack.append (v)
 
-  @logtool.log_call (log_args = False, log_rc = False)
+ # @logtool.log_call (log_args = False, log_rc = False)
   def _do_includes (self, no_defaults):
     stack = [self.read,]
     for d in stack:
       include = d.get (INCLUDE_KEY, [])
       if isinstance (include, list):
         for f in include:
-          for k, v in CfgStack (f, no_defaults = no_defaults).read.items ():
+          for k, v in CfgStack (f, no_defaults = no_defaults).data.items ():
             d[k] = self._meld (d.get (k), v)
         d.pop (INCLUDE_KEY, None)
       self._do_nesting (d, stack)
 
-  @logtool.log_call
+  # @logtool.log_call (log_args = False)
   def _do_defaults (self):
     stack = [self.read,]
     for d in stack:
