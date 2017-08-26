@@ -1,0 +1,12 @@
+root:
+  top: top
+  _default_:
+    def: test5
+  _include_:
+    - test5a
+    - test5b
+  collector: 
+    this: that
+  nest:
+    _default_:
+      here: test5

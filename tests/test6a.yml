@@ -1,0 +1,7 @@
+_default_:
+  def: test6a
+block1: {}
+block2:
+  foo: bar
+block3:
+  def: local_value

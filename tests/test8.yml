@@ -1,0 +1,6 @@
+root:
+  _default_:
+    def: simple
+  empty: {}
+  mixed:
+    this: that

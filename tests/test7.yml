@@ -1,0 +1,8 @@
+root: 
+  _include_:
+    - test7a
+  empty: {}
+  value: 
+    def: test7
+  other:
+    thing: this

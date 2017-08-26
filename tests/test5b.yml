@@ -1,0 +1,8 @@
+top: test5b
+_default_:
+  test5b: test5b
+collector:
+  this: test5b
+nest:
+  bird:
+    sparrow: tweet

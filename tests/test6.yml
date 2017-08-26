@@ -1,0 +1,5 @@
+root:
+  second:
+    _include_:
+      - test6a
+      - test6b

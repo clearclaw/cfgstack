@@ -1,13 +1,13 @@
 _default_:
   foo: bar
   password: sekrit
-this:
+mixed:
   other: thing
   password: ohdear
-problem:
+partial:
   foo: baz
 empty: {}
-channels:
+unaffected:
   - name: '#mychannel'
     password: ''
   - name: '#myprivatechannel'

@@ -6,7 +6,23 @@ from addict import Dict
 DEFAULT_KEY = "_default_"
 INCLUDE_KEY = "_include_"
 
+#@logtool.log_call (log_args = False)
+def _dictmerge (master, update):
+  for k, v in update.items():
+    if (k in master and isinstance (master[k], dict)
+        and isinstance (update[k], dict)):
+      _dictmerge (master[k], update[k])
+    elif k not in master:
+      master[k] = v
+
 class CfgStack (object):
+
+  """Note that dictionaries inside of lists are not expanded with
+  respects to _default_ and _include_.  Only the immediate tree of
+  dicts is munged.  The backing premise for this is that the purpose
+  is configuration data, key value pairs, not arbitrary constructs.
+  """
+
   # pylint: disable=too-few-public-methods
 
   @logtool.log_call
@@ -15,8 +31,9 @@ class CfgStack (object):
     self.fname = fname
     self.read = self._load (fname)
     self.no_defaults = no_defaults
-    self._do_includes (no_defaults)
-    self._do_defaults ()
+    self._do_includes ()
+    if not no_defaults:
+      self._do_defaults ()
     self.data = Dict (self.read)
 
   @logtool.log_call
@@ -34,46 +51,41 @@ class CfgStack (object):
       raise IOError ("CfgStack: Cannot find file for %s in %s"
                      % (fname, os.getcwd ()))
 
-#  @logtool.log_call (log_args = False, log_rc = False)
-  def _meld (self, master, slave):
-    if master is None:
-      return slave
-    if isinstance (master, dict) and isinstance (slave, dict):
-      new = copy.deepcopy (slave)
-      # FIXME: should be a deep merge
-      new.update (master)
-      return new
-    return slave
-
-#  @logtool.log_call (log_args = False, log_rc = False)
+  #@logtool.log_call (log_args = False, log_rc = False)
   def _do_nesting (self, d, stack):
-    for _, v in d.items ():
-      if isinstance (v, dict):
-        stack.append (v)
+    if isinstance (d, dict):
+      for _, v in d.items ():
+        if isinstance (v, dict):
+          stack.append (v)
 
- # @logtool.log_call (log_args = False, log_rc = False)
-  def _do_includes (self, no_defaults):
+  #@logtool.log_call (log_args = False, log_rc = False)
+  def _do_includes (self):
     stack = [self.read,]
     for d in stack:
-      include = d.get (INCLUDE_KEY, [])
+      include = d.pop (INCLUDE_KEY, [])
       if isinstance (include, list):
         for f in include:
-          for k, v in CfgStack (f, no_defaults = no_defaults).data.items ():
-            d[k] = self._meld (d.get (k), v)
-        d.pop (INCLUDE_KEY, None)
+          for k, v in CfgStack (
+              f, no_defaults = True).data.items ():
+            if isinstance (d.get (k), dict) and isinstance (v, dict):
+              _dictmerge (d[k], v)
+            else:
+              d[k] = v
       self._do_nesting (d, stack)
 
-  # @logtool.log_call (log_args = False)
+  #@logtool.log_call (log_args = False)
   def _do_defaults (self):
     stack = [self.read,]
     for d in stack:
       default = d.get (DEFAULT_KEY, {})
       if isinstance (default, dict):
         for k, v in d.items ():
+          if (isinstance (v, dict) and isinstance (default, dict)
+              and default != {}):
+            _dictmerge (v, default)
           if isinstance (v, dict):
-            d[k] = self._meld (v, default)
-        d.pop (DEFAULT_KEY, None)
-      self._do_nesting (d, stack)
+            stack.append (d[k])
+      d.pop (DEFAULT_KEY, {})
 
   @logtool.log_call
   def as_yaml (self):

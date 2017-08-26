@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import cfgstack, contextlib, datetime, logging, logtool, os, unittest
+from path import Path
 
 # logging.basicConfig (level = logging.DEBUG)
 
@@ -29,7 +30,7 @@ class CfgStack_Tests (unittest.TestCase):
 
   @logtool.log_call
   def test_test1 (self):
-    with chdir_ctx ("tests"):
+    with Path ("tests"):
       c = cfgstack.CfgStack ("test1")
       d = c.data.to_dict ()
       expected = {
@@ -79,34 +80,16 @@ class CfgStack_Tests (unittest.TestCase):
 
   @logtool.log_call
   def test_test2 (self):
-    with chdir_ctx ("tests"):
+    with Path ("tests"):
       c = cfgstack.CfgStack ("test2")
       d = c.data.to_dict ()
       expected = {
-        "channels": [
-          {
-            "name": "#mychannel",
-            "password": "",
-          },
-          {
-            "name": "#myprivatechannel",
-            "password": "mypassword",
-          }
-        ],
-        "empty": {
-          "foo": "bar",
-          "password": "sekrit",
-        },
-        "problem": {
-          "foo": "baz",
-          "password": "sekrit",
-        },
-        "this": {
-          "foo": "bar",
-          "other": "thing",
-          "password": "ohdear",
-        },
-      }
+        'empty': {'foo': 'bar', 'password': 'sekrit'},
+        'mixed': {'foo': 'bar', 'other': 'thing', 'password': 'ohdear'},
+        'partial': {'foo': 'baz', 'password': 'sekrit'},
+        'unaffected': [{'name': '#mychannel', 'password': ''},
+                       {'name': '#myprivatechannel',
+                        'password': 'mypassword'}]}
       added, removed, modified, same = dict_compare (expected, d)
       self.assertEqual (added, set ([]))
       self.assertEqual (removed, set ([]))
@@ -114,7 +97,7 @@ class CfgStack_Tests (unittest.TestCase):
 
   @logtool.log_call
   def test_test3 (self):
-    with chdir_ctx ("tests"):
+    with Path ("tests"):
       c = cfgstack.CfgStack ("test3")
       d = c.data.to_dict ()
       expected = {
@@ -137,7 +120,7 @@ class CfgStack_Tests (unittest.TestCase):
 
   @logtool.log_call
   def test_test4 (self):
-    with chdir_ctx ("tests"):
+    with Path ("tests"):
       c = cfgstack.CfgStack ("test4")
       d = c.data.to_dict ()
       expected = {
@@ -147,6 +130,82 @@ class CfgStack_Tests (unittest.TestCase):
           "top": "top",
         },
       }
+      added, removed, modified, same = dict_compare (expected, d)
+      self.assertEqual (added, set ([]))
+      self.assertEqual (removed, set ([]))
+      self.assertEqual (modified, {})
+
+  @logtool.log_call
+  def test_test5 (self):
+    with Path ("tests"):
+      c = cfgstack.CfgStack ("test5")
+      d = c.data.to_dict ()
+      expected = {
+        "root": {
+          "collector": {
+            "def": "test5a",
+            "side": "side",
+            "test5b": "test5b",
+            "this": "test5b",
+          },
+          "nest": {
+            "bird": {
+              "here": "test5",
+              "sparrow": "tweet",
+            },
+            "def": "test5a",
+            "side": "side",
+            "test5b": "test5b"
+          },
+          "top": "test5b",
+        },
+      }
+      added, removed, modified, same = dict_compare (expected, d)
+      self.assertEqual (added, set ([]))
+      self.assertEqual (removed, set ([]))
+      self.assertEqual (modified, {})
+
+  @logtool.log_call
+  def test_test6 (self):
+    with Path ("tests"):
+      c = cfgstack.CfgStack ("test5")
+      d = c.data.to_dict ()
+      expected = {'root': {'second': {'block1': {'def': 'test6a'},
+                     'block2': {'def': 'test6a', 'foo': 'bar'},
+                     'block3': {'def': 'local_value'},
+                     'block_6b': {'def': 'test6a', 'something': 'else'},
+                     'block_b61': {'def': 'test6a'},
+                     'block_bb2': {'def': 'test6b'}}}}
+      added, removed, modified, same = dict_compare (expected, d)
+      self.assertEqual (added, set ([]))
+      self.assertEqual (removed, set ([]))
+      self.assertEqual (modified, {})
+
+
+  @logtool.log_call
+  def test_test6 (self):
+    with Path ("tests"):
+      c = cfgstack.CfgStack ("test5")
+      d = c.data.to_dict ()
+      expected = {'root': {'second': {'block1': {'def': 'test6a'},
+                     'block2': {'def': 'test6a', 'foo': 'bar'},
+                     'block3': {'def': 'local_value'},
+                     'block_6b': {'def': 'test6a', 'something': 'else'},
+                     'block_b61': {'def': 'test6a'},
+                     'block_bb2': {'def': 'test6b'}}}}
+      added, removed, modified, same = dict_compare (expected, d)
+      self.assertEqual (added, set ([]))
+      self.assertEqual (removed, set ([]))
+      self.assertEqual (modified, {})
+
+
+  @logtool.log_call
+  def test_test8 (self):
+    with Path ("tests"):
+      c = cfgstack.CfgStack ("test8")
+      d = c.data.to_dict ()
+      expected = {'root': {'empty': {'def': 'simple'},
+          'mixed': {'def': 'simple', 'this': 'that'}}}
       added, removed, modified, same = dict_compare (expected, d)
       self.assertEqual (added, set ([]))
       self.assertEqual (removed, set ([]))
