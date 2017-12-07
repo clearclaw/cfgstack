@@ -9,11 +9,10 @@ and to incorporate their contents into the growing dataset.
 
   CfgStack ("somefile")
   
-Attempts to load the named file, first as a JSON file with a ".json"
-extension, and then as a YAML file with either a ".yaml" or ".yml"
-file extension.  The loaded object must be a dictionary.  The "data"
-member of the resulting object is an addict Dict of the loaded
-dataset.  So far so simple.
+Attempts to load the named file as JSON/YAML/TOML with default
+extensions of json/yaml/yml/toml (can be over-ridden).  The loaded
+object must be a dictionary.  The "data" member of the resulting
+object is an addict Dict of the loaded dataset.  So far so simple.
 
 ::
 
@@ -40,9 +39,10 @@ dataset.  So far so simple.
 A few things going on here:
 
 - "_include_" keys are assumed to list additional data files which
-  will be loaded and their contents merged with the dictionary at
-  the same level.  If multiple files are listed, they will be
-  applied in order from the top down.
+  will be loaded and their contents merged with the dictionary at the
+  same level.  If multiple files are listed, they will be applied in
+  order from the top down.  Files are searched for in the CWD or
+  optionally in a list of passed paths.
 
 - "_default_" keys provide default key:value pairs for all
   dictionary values at the current level

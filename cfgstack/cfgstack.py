@@ -32,7 +32,7 @@ class CfgStack (object):
     # pylint: disable=too-many-nested-blocks,too-many-branches
     self.fname = fname
     self.dirs = [Path (d) for d in (["./"] if dirs is None else dirs)]
-    self.exts = ("json", "yaml", "yml") if exts is None else exts
+    self.exts = ("json", "yaml", "yml", "toml") if exts is None else exts
     self.read = self._load ()
     self.no_defaults = no_defaults
     self._do_includes ()
