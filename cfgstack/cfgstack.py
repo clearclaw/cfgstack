@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 
-import copy, json, logtool, os, pprint, yaml
+import copy, json, logtool, os, pprint, toml, yaml
 from addict import Dict
+from path import Path
 
 DEFAULT_KEY = "_default_"
 INCLUDE_KEY = "_include_"
@@ -26,30 +27,36 @@ class CfgStack (object):
   # pylint: disable=too-few-public-methods
 
   @logtool.log_call
-  def __init__ (self, fname, no_defaults = False):
+  def __init__ (self, fname, no_defaults = False,
+                dirs = None, exts = None):
     # pylint: disable=too-many-nested-blocks,too-many-branches
     self.fname = fname
-    self.read = self._load (fname)
+    self.dirs = [Path (d) for d in (["./"] if dirs is None else dirs)]
+    self.exts = ("json", "yaml", "yml") if exts is None else exts
+    self.read = self._load ()
     self.no_defaults = no_defaults
     self._do_includes ()
     if not no_defaults:
       self._do_defaults ()
     self.data = Dict (self.read)
 
-  @logtool.log_call
-  def _load (self, fname):
-    if not isinstance (fname, basestring):
-      raise ValueError ("Name: %s is not a string" % fname)
-    # FIXME: Be smarter about relative paths
-    if os.path.isfile (fname + ".json"):
-      return json.loads (file (fname + ".json").read ())
-    elif os.path.isfile (fname + ".yaml"):
-      return yaml.safe_load (file (fname + ".yaml"))
-    elif os.path.isfile (fname + ".yml"):
-      return yaml.safe_load (file (fname + ".yml"))
+  @logtool.log_call (log_rc = False)
+  def _load (self):
+    if not isinstance (self.fname, basestring):
+      raise ValueError ("Name: %s is not a string" % self.fname)
+    for d in self.dirs:
+      for ext in self.exts:
+        f = Path (d / "%s.%s" % (self.fname, ext))
+        if f.isfile ():
+          try:
+            return json.loads (file (f).read ())
+          except:
+            try:
+              return yaml.safe_load (file (f))
+            except:
+              return toml.loads (file (f).read ())
     else:
-      raise IOError ("CfgStack: Cannot find file for %s in %s"
-                     % (fname, os.getcwd ()))
+      raise IOError ("CfgStack: Cannot find/parse file for %s" % (self.fname))
 
   #@logtool.log_call (log_args = False, log_rc = False)
   def _do_nesting (self, d, stack):
