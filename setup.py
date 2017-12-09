@@ -22,7 +22,7 @@ setup (
     author_email = "claw@kanga.nu",
     url = "https://github.com/clearclaw/cfgstack",
     license = "LGPL v3.0",
-    test_suite = "tests",
+    test_suite = "tests.cfgstack_test",
     packages = find_packages (exclude = ["tests",]),
     package_data = {},
     data_files = [],
