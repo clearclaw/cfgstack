@@ -32,7 +32,8 @@ class CfgStack (object):
     # pylint: disable=too-many-nested-blocks,too-many-branches
     self.fname = fname
     self.dirs = [Path (d) for d in (["./"] if dirs is None else dirs)]
-    self.exts = ("json", "yaml", "yml", "toml") if exts is None else exts
+    self.exts = (("", ".json", ".yaml", ".yml", ".toml") 
+                 if exts is None else exts)
     self.read = self._load ()
     self.no_defaults = no_defaults
     self._do_includes ()
@@ -46,7 +47,7 @@ class CfgStack (object):
       raise ValueError ("Name: %s is not a string" % self.fname)
     for d in self.dirs:
       for ext in self.exts:
-        f = Path (d / "%s.%s" % (self.fname, ext))
+        f = Path (d / "%s%s" % (self.fname, ext))
         if f.isfile ():
           try:
             return json.loads (file (f).read ())
