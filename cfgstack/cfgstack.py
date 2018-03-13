@@ -32,7 +32,7 @@ class CfgStack (object):
     # pylint: disable=too-many-nested-blocks,too-many-branches
     self.fname = fname
     self.dirs = [Path (d) for d in (["./"] if dirs is None else dirs)]
-    self.exts = (("", ".json", ".yaml", ".yml", ".toml") 
+    self.exts = (("", ".json", ".yaml", ".yml", ".toml")
                  if exts is None else exts)
     self.read = self._load ()
     self.no_defaults = no_defaults
@@ -96,14 +96,33 @@ class CfgStack (object):
       d.pop (DEFAULT_KEY, {})
 
   @logtool.log_call
-  def as_yaml (self):
-    return yaml.dump (self.data.to_dict (), width = 70, indent = 2,
-                      default_flow_style = False)
-
-  @logtool.log_call
   def as_json (self, indent = 2):
     return json.dumps (self.read, indent = indent)
 
   @logtool.log_call
+  def as_yaml (self, indent = 2):
+    return yaml.dump (self.data.to_dict (), width = 70, indent = indent,
+                      default_flow_style = False)
+
+  @logtool.log_call
+  def as_toml (self):
+    return toml.dump (self.data.to_dict ())
+
+  @logtool.log_call
   def as_pretty (self):
     return pprint.pformat (self.data.to_dict ())
+
+  @logtool.log_call
+  def dumps (self, format = "yaml", indent = 2):
+    if format in ("JSON", "json"):
+      return self.as_json (indent = indent)
+    elif format in ("YAML", "yaml", "yml"):
+      return self.as_yaml (indent = indent)
+    elif format in ("TOML", "toml"):
+      return self.as_toml ()
+    else:
+      raise ValueError ("Unknown format: " + format)
+
+  @logtool.log_call (log_rc = False)
+  def write (self, fname, format = "YAML"):
+    Path (fname).open ("w").write (unicode (self.dumps (format), "utf-8"))
