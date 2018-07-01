@@ -102,7 +102,7 @@ class CfgStack_Tests (unittest.TestCase):
     with Path ("tests"):
       c = cfgstack.CfgStack ("test%d" % ndx)
       d = c.data.to_dict ()
-      expected =self.results[ndx - 1]
+      expected = self.results[ndx - 1]
       added, removed, modified, same = dict_compare (expected, d)
       self.assertEqual (added, set ([]))
       self.assertEqual (removed, set ([]))

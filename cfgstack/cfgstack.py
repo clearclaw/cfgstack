@@ -34,7 +34,10 @@ class CfgStack (object):
     self.dirs = [Path (d) for d in (["./"] if dirs is None else dirs)]
     self.exts = (("", ".json", ".yaml", ".yml", ".toml")
                  if exts is None else exts)
-    self.read = self._load ()
+    if isinstance (fname, list) or isinstance (fname, tuple):
+      self.read = {INCLUDE_KEY: list (self.fname)}
+    else:
+      self.read = self._load ()
     self.no_defaults = no_defaults
     self._do_includes ()
     if not no_defaults:
