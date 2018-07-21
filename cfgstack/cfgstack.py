@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import copy, json, logtool, os, pprint, toml, yaml
+import codecs, json, logtool, pprint, toml, yaml
 from addict import Dict
 from path import Path
 
@@ -53,14 +53,13 @@ class CfgStack (object):
         f = Path (d / "%s%s" % (self.fname, ext))
         if f.isfile ():
           try:
-            return json.loads (file (f).read ())
-          except:
+            return json.loads (codecs.open (f, encoding='utf-8').read ())
+          except: # pylint: disable=bare-except
             try:
-              return yaml.safe_load (file (f))
-            except:
-              return toml.loads (file (f).read ())
-    else:
-      raise IOError ("CfgStack: Cannot find/parse file for %s" % (self.fname))
+              return yaml.safe_load (codecs.open (f, encoding='utf-8'))
+            except: # pylint: disable=bare-except
+              return toml.loads (codecs.open (f, encoding='utf-8').read ())
+    raise IOError ("CfgStack: Cannot find/parse file for %s" % (self.fname))
 
   #@logtool.log_call (log_args = False, log_rc = False)
   def _do_nesting (self, d, stack):
@@ -117,16 +116,16 @@ class CfgStack (object):
     return pprint.pformat (self.data.to_dict ())
 
   @logtool.log_call
-  def dumps (self, format = "yaml", indent = 2):
-    if format in ("JSON", "json"):
+  def dumps (self, form = "yaml", indent = 2):
+    if form in ("JSON", "json"):
       return self.as_json (indent = indent)
-    elif format in ("YAML", "yaml", "yml"):
+    elif form in ("YAML", "yaml", "yml"):
       return self.as_yaml (indent = indent)
-    elif format in ("TOML", "toml"):
+    elif form in ("TOML", "toml"):
       return self.as_toml ()
     else:
-      raise ValueError ("Unknown format: " + format)
+      raise ValueError ("Unknown format: " + form)
 
   @logtool.log_call (log_rc = False)
-  def write (self, fname, format = "YAML"):
-    Path (fname).open ("w").write (unicode (self.dumps (format), "utf-8"))
+  def write (self, fname, form = "YAML"):
+    Path (fname).open ("w").write (unicode (self.dumps (form), "utf-8"))
