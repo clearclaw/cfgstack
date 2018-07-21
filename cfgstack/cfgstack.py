@@ -77,7 +77,8 @@ class CfgStack (object):
       if isinstance (include, list):
         for f in include:
           for k, v in CfgStack (
-              f, no_defaults = True).data.items ():
+              f, dirs = self.dirs, exts = self.exts,
+              no_defaults = True).data.items ():
             if isinstance (d.get (k), dict) and isinstance (v, dict):
               _dictmerge (d[k], v)
             else:
