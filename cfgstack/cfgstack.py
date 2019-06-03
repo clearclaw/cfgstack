@@ -1,11 +1,17 @@
 #! /usr/bin/env python
 
 import codecs, json, logtool, pprint, toml, yaml
+from six import string_types
 from addict import Dict
 from path import Path
 
 DEFAULT_KEY = "_default_"
 INCLUDE_KEY = "_include_"
+
+try:
+  unicode ("")
+except:
+  unicode = str
 
 #@logtool.log_call (log_args = False)
 def _dictmerge (master, update):
@@ -34,7 +40,7 @@ class CfgStack (object):
     self.dirs = [Path (d) for d in (["./"] if dirs is None else dirs)]
     self.exts = (("", ".json", ".yaml", ".yml", ".toml")
                  if exts is None else exts)
-    if isinstance (fname, list) or isinstance (fname, tuple):
+    if isinstance (fname, (list, tuple)):
       self.read = {INCLUDE_KEY: list (self.fname)}
     else:
       self.read = self._load ()
@@ -46,7 +52,7 @@ class CfgStack (object):
 
   @logtool.log_call (log_rc = False)
   def _load (self):
-    if not isinstance (self.fname, basestring):
+    if not isinstance (self.fname, string_types):
       raise ValueError ("Name: %s is not a string" % self.fname)
     for d in self.dirs:
       for ext in self.exts:
