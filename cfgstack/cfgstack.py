@@ -10,8 +10,10 @@ INCLUDE_KEY = "_include_"
 
 try:
   unicode ("")
+  OPEN = codecs.open
 except:
   unicode = str
+  OPEN = open
 
 #@logtool.log_call (log_args = False)
 def _dictmerge (master, update):
@@ -59,12 +61,12 @@ class CfgStack (object):
         f = Path (d / "%s%s" % (self.fname, ext))
         if f.isfile ():
           try:
-            return json.loads (codecs.open (f, encoding='utf-8').read ())
+            return json.loads (OPEN (f, encoding='utf-8').read ())
           except: # pylint: disable=bare-except
             try:
-              return yaml.safe_load (codecs.open (f, encoding='utf-8'))
+              return yaml.safe_load (OPEN (f, encoding='utf-8'))
             except: # pylint: disable=bare-except
-              return toml.loads (codecs.open (f, encoding='utf-8').read ())
+              return toml.loads (OPEN (f, encoding='utf-8').read ())
     raise IOError ("CfgStack: Cannot find/parse file for %s" % (self.fname))
 
   #@logtool.log_call (log_args = False, log_rc = False)
