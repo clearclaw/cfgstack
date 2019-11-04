@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import codecs, json, logtool, pprint, toml, yaml
+import json, logtool, pprint, toml, yaml
 from six import string_types
 from addict import Dict
 from path import Path
@@ -10,6 +10,7 @@ INCLUDE_KEY = "_include_"
 
 try:
   unicode ("")
+  import codecs
   OPEN = codecs.open
 except:
   unicode = str
@@ -39,7 +40,8 @@ class CfgStack (object):
                 dirs = None, exts = None):
     # pylint: disable=too-many-nested-blocks,too-many-branches
     self.fname = fname
-    self.dirs = [Path (d) for d in (["./"] if dirs is None else dirs)]
+    self.dirs = [Path (d) for d in ( # pylint: disable=superfluous-parens
+      ["./"] if dirs is None else dirs)]
     self.exts = (("", ".json", ".yaml", ".yml", ".toml")
                  if exts is None else exts)
     if isinstance (fname, (list, tuple)):
@@ -60,13 +62,17 @@ class CfgStack (object):
       for ext in self.exts:
         f = Path (d / "%s%s" % (self.fname, ext))
         if f.isfile ():
-          try:
-            return json.loads (OPEN (f, encoding='utf-8').read ())
-          except: # pylint: disable=bare-except
+          with OPEN (f, "r", encoding='utf-8') as fh:
             try:
-              return yaml.safe_load (OPEN (f, encoding='utf-8'))
+              with OPEN (f, "r", encoding='utf-8') as fh:
+                return json.loads (fh.read ())
             except: # pylint: disable=bare-except
-              return toml.loads (OPEN (f, encoding='utf-8').read ())
+              try:
+                with OPEN (f, "r", encoding='utf-8') as fh:
+                  return yaml.safe_load (fh)
+              except: # pylint: disable=bare-except
+                with OPEN (f, "r", encoding='utf-8') as fh:
+                  return toml.loads (fh.read ())
     raise IOError ("CfgStack: Cannot find/parse file for %s" % (self.fname))
 
   #@logtool.log_call (log_args = False, log_rc = False)
@@ -117,7 +123,7 @@ class CfgStack (object):
 
   @logtool.log_call
   def as_toml (self):
-    return toml.dump (self.data.to_dict ())
+    return toml.dumps (self.data.to_dict ())
 
   @logtool.log_call
   def as_pretty (self):
