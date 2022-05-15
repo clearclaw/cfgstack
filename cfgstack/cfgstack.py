@@ -60,19 +60,21 @@ class CfgStack (object):
       raise ValueError ("Name: %s is not a string" % self.fname)
     for d in self.dirs:
       for ext in self.exts:
-        f = Path (d / "%s%s" % (self.fname, ext))
+        if self.fname[0] in ("/", "."):
+          f = Path ("%s%s" % (self.fname, ext))
+        else:
+          f = Path (d / "%s%s" % (self.fname, ext))
         if f.isfile ():
-          with OPEN (f, "r", encoding='utf-8') as fh:
+          try:
+            with OPEN (f, "r", encoding='utf-8') as fh:
+              return json.loads (fh.read ())
+          except: # pylint: disable=bare-except
             try:
               with OPEN (f, "r", encoding='utf-8') as fh:
-                return json.loads (fh.read ())
+                return yaml.safe_load (fh)
             except: # pylint: disable=bare-except
-              try:
-                with OPEN (f, "r", encoding='utf-8') as fh:
-                  return yaml.safe_load (fh)
-              except: # pylint: disable=bare-except
-                with OPEN (f, "r", encoding='utf-8') as fh:
-                  return toml.loads (fh.read ())
+              with OPEN (f, "r", encoding='utf-8') as fh:
+                return toml.loads (fh.read ())
     raise IOError ("CfgStack: Cannot find/parse file for %s" % (self.fname))
 
   #@logtool.log_call (log_args = False, log_rc = False)
